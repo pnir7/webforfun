@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper.js Smoothing Example</title>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+  <style>
+    body, html, canvas {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="paperCanvas" resize></canvas>
+  <script>
+    function initPaperScript() {
+      paper.install(window);
+      paper.setup('paperCanvas');
+  
+      var path, position;
+      var offset = 0;
+      var step = 0.05;
+      var smoothing = 0.15;
+      var pathHeight = 50;
+  
+      function onMouseDown(event) {
+        path = new paper.Path();
+        position = event.point;
+        path.strokeColor = 'black';
+        path.add(event.point);
+      }
+  
+      function onMouseMove(event) {
+        if (!path) return;
+        var vector = event.point.subtract(position);
+        vector.y = 0;
+        vector.length = pathHeight;
+        position = event.point;
+        path.add(position.add(vector));
+      }
+  
+      function onMouseUp(event) {
+        if (!path) return;
+        path.add(event.point);
+        path.simplify(10);
+        path = null;
+      }
+  
+      function onFrame(event) {
+        if (!path) return;
+        offset += step;
+        if (offset > 1) {
+          offset -= 1;
+          for (var i = 0; i < path.segments.length - 1; i++) {
+            var segment = path.segments[i];
+            var nextSegment = path.segments[i + 1];
+            var vector = nextSegment.point.subtract(segment.point);
+            vector.y = 0;
+            vector.length = pathHeight;
+            segment.point = new paper.Point(
+              segment.point.add(vector.normalize(smoothing))
+            );
+          }
+        }
+      }
+  
+      paper.view.onMouseDown = onMouseDown;
+      paper.view.onMouseMove = onMouseMove;
+      paper.view.onMouseUp = onMouseUp;
+      paper.view.onFrame = onFrame;
+    }
+  
+    if (window.paper && window.paper.PaperScript) {
+      initPaperScript();
+    } else {
+      document.addEventListener('paperloaded', initPaperScript);
+    }
+  </script>
+</body>
+</html>
