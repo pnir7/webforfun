@@ -8,6 +8,8 @@
 </head>
 <body>
   <script>
+    let scrollRotation;
+  
     function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
 }
@@ -15,14 +17,16 @@
 function draw() {
   clear();
 
+  scrollRotation = window.pageYOffset * 0.01;
+
   // Center the box in the canvas
   translate(0, 0, 0);
 
   normalMaterial();
   push();
-  rotateZ(frameCount * 0.01);
-  rotateX(frameCount * 0.01);
-  rotateY(frameCount * 0.01);
+  rotateZ(scrollRotation);
+  rotateX(scrollRotation);
+  rotateY(scrollRotation);
   box(70, 70, 70);
   pop();
 }
